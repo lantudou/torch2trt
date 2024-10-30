@@ -10,13 +10,17 @@ find_package(CUDA REQUIRED)
 enable_language(CUDA)
 
 include_directories("${CUDA_INCLUDE_DIRS}")
+include_directories(/share_data/YuhaoSun/TensorRT-8.6.1.6/include/)
+link_directories(/share_data/YuhaoSun/TensorRT-8.6.1.6/lib/)
 
 add_library(torch2trt_plugins SHARED
     plugins/src/example_plugin.cu
     plugins/src/reflection_pad_2d_plugin.cu
+    plugins/src/multiscaleDeformableAttnPlugin.cu
+    plugins/src/multiscaleDeformableAttn.cu		
 )
 set_property(TARGET torch2trt_plugins PROPERTY CUDA_ARCHITECTURES ${CUDA_ARCHITECTURES})
-
+target_compile_options(torch2trt_plugins PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-gencode arch=compute_72,code=sm_72>)
 target_link_libraries(
     torch2trt_plugins
     nvinfer
